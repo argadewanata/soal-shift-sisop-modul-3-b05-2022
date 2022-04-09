@@ -6,6 +6,6 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-int main() {
+int main (){
     
 }
