@@ -416,10 +416,130 @@ void *zip_hasil()
 **Penjelasan Kode Program Fungsi zip_hasil**  
 Sesuai dengan namanya, fungsi ini digunakan untuk melakukan zip pada folder "hasil" menjadi "hasil.zip" yang dilindungi oleh password "mihinomenestargadewanata".Untuk melakukan zip, digunakan perintah `zip` dengan menerima parameter `-P` agar zip memiliki password dan parameter `-r` agar mampu melakukan zip pada directory.  
 
+### 1E  
 
+**Deskripsi Soal**  
+Unzip file "hasil.zip" dan buat file "no.txt" yang berisi tulisan "No" pada saat yang bersamaan. Lalu, lakukan zip kembali pada folder "hasil" dan file "no.txt" dengan tetap memiliki password "mihinomenestargadewanata".  
 
+**Kode Program Fungsi Main**  
+```
+/*
+    Soal 1E:
+    Unzip file "hasil.zip" dan buat file "no.txt" yang berisi tulisan "No" secara bersamaan.
+    Lalu, zip lagi dengan ketentuan yang sama seperti sebelumnya
+*/
+    // Unzip  and create "no.txt"   
+int err6;
+for (int i = 0; i < 3; i++)
+{
+    err6 = pthread_create(&(unzip2_id[i]), NULL, &unzip_hasil, NULL); 
+}
 
+for (int j = 0; j < 3; j++)
+{
+    pthread_join(unzip2_id[j], NULL);
+}
+    // Zip again
+int err7;
+for (int i = 0; i < 2; i++)
+{
+    err7 = pthread_create(&(zip_id[i]), NULL, &zip_hasil_again,NULL); 
+}
 
+for (int j = 0; j < 2; j++)
+{
+    pthread_join(zip_id[j], NULL);
+}
+
+```  
+**Penjelasan Kode Program Fungsi Main**  
+Membuat thread untuk melakukan unzip, membuat file "no.txt", dan zip kembali. Thread dibuat menggunakan `pthread_create` Setiap thread tersebut setelah dibuat akan digabungkan menggunakan `pthread_join`.  
+
+**Kode Program Fungsi unzip_hasil**  
+```
+void *unzip_hasil(void *arg)
+{
+    int status;
+    pthread_t id = pthread_self();
+    if(pthread_equal(id,unzip2_id[0]))
+    {
+        pid_t  child_remove_olddir_hasil;
+        child_remove_olddir_hasil = fork();
+        if(child_remove_olddir_hasil < 0 )
+        {
+            exit(EXIT_FAILURE);
+        }
+        else if(child_remove_olddir_hasil == 0)
+        {
+            char *argv[]={"rm","-r","hasil", NULL};
+            execv("/bin/rm",argv);
+        }
+        while ((wait(&status)) > 0);
+    }
+    else if(pthread_equal(id,unzip2_id[1])){
+        pid_t child_unzip_hasil;
+        child_unzip_hasil = fork();
+        if(child_unzip_hasil < 0 )
+        {
+            exit(EXIT_FAILURE);
+        }
+        else if(child_unzip_hasil == 0){
+            usleep(1000);
+            char *argv[] = {"unzip", "-P", "mihinomenestargadewanata", "-qq", "hasil.zip", NULL};
+            execv("/bin/unzip", argv);
+        }
+        while ((wait(&status)) > 0);
+    }
+    else if(pthread_equal(id,unzip2_id[2])){
+        FILE *fp1 = fopen("no.txt", "a");
+        fprintf(fp1,"No");
+        fclose(fp1);
+    }
+}
+```  
+**Penjelasan Kode Program fungsi unzip_hasil**  
+Tidak hanya mampu unzip "hasil.zip", fungsi ini juga mampu untuk membuat file "no.txt" sekaligus mengisinya. Agar dapat dilakukan secara bersamaan, digunakanlah thread. Agar tidak terjadi kebingungan, folder "hasil" yang lama akan dihapus dengan perintah `rm` lalu dilakukan unzip dengan perintah `unzip`. Selain itu, juga terjadi proses pembuatan file "no.txt" sekaligus dilakukan penulisan di file tersebut.  
+
+**Kode Program fungsi zip_hasil_again**  
+```
+void *zip_hasil_again(void *arg)
+{
+    int status;
+    pthread_t id = pthread_self();
+    if(pthread_equal(id,zip_id[0]))
+    {
+        pid_t child_zip_hasil_again;
+        child_zip_hasil_again = fork();
+        if (child_zip_hasil_again < 0)
+        {
+            exit(EXIT_FAILURE);
+        }
+        else if(child_zip_hasil_again == 0)
+        {
+            char *argv[]={"zip","-P","mihinomenestargadewanata", "-r", "hasil.zip", "hasil", "no.txt", NULL};
+            execv("/bin/zip",argv);
+        }
+        while ((wait(&status)) > 0);
+    }
+    else if(pthread_equal(id,zip_id[1]))
+    {
+        pid_t child_remove_old_zip_hasil;
+        child_remove_old_zip_hasil = fork();
+        if (child_remove_old_zip_hasil < 0)
+        {
+            exit(EXIT_FAILURE);
+        }
+        else if(child_remove_old_zip_hasil == 0)
+        {
+            char *argv[]={"rm","-r","hasil.zip", NULL};
+            execv("/bin/rm",argv);
+        }
+        while ((wait(&status)) > 0);
+    }
+}
+```
+**Penjelasan Kode Program fungsi zip_hasil_again**      
+Tidak hanya mampu melakukan zip kembali, fungsi ini juga dapat menghapus file "hasil.zip" yang lama. Agar dapat dilakukan secara bersamaan, digunakanlah thread. Untuk melakukan zip, digunakan perintah `zip` dengan menerima parameter `-P` agar zip memiliki password dan parameter `-r` agar mampu melakukan zip pada directory.  Untuk melakukan penghapusan file "hasil.zip" yang lama digunakan perintah `rm`.    
 
 ## Soal 2  
 test    
