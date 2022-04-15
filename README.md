@@ -342,7 +342,7 @@ for (int j = 0;j < 2 ; j++)
 }
 
 ```  
-**Penjelasan Kode Program Fungsi Main** 
+**Penjelasan Kode Program Fungsi Main**   
 Membuat thread untuk melakukan pemindahan file. Thread dibuat menggunakan `pthread_create` Setiap thread tersebut setelah dibuat akan digabungkan menggunakan `pthread_join`.  
 
 **Kode Program Untuk Fungsi Move**  
@@ -386,6 +386,35 @@ void *move(void *arg)
 
 **Penjelasan Kode Program Fungsi Move**  
 Sesuai dengan namanya, fungsi ini digunakan untuk melakukan pemindahan file "music.txt" dan "quote.txt" ke dalam folder "hasil". Agar dapat dilakukan secara bersamaan, digunakanlah thread. Untuk melakukan pemindahan file, digunakan perintah `mv`.  
+
+### 1D  
+
+**Deskripsi Soal**  
+Melakukan zip pada folder "hasil " dan memberikan password berupa "mihinomenestargadewanata".  
+
+**Kode Program Fungsi zip_hasil**  
+```
+void *zip_hasil()
+{
+    int status;
+    chdir("/home/argadewanata/'modul 3'");
+    pid_t child_zip_hasil;
+    child_zip_hasil= fork();
+    if (child_zip_hasil < 0)
+    {
+        exit(EXIT_FAILURE);
+    }
+    else if (child_zip_hasil == 0)
+    {
+        char *argv[] = {"zip", "-P", "mihinomenestargadewanata", "-r","hasil.zip","hasil",NULL};
+        execv("/bin/zip", argv);
+    }
+    while ((wait(&status)) > 0);
+}
+```  
+
+**Penjelasan Kode Program Fungsi zip_hasil**  
+Sesuai dengan namanya, fungsi ini digunakan untuk melakukan zip pada folder "hasil" menjadi "hasil.zip" yang dilindungi oleh password "mihinomenestargadewanata".Untuk melakukan zip, digunakan perintah `zip` dengan menerima parameter `-P` agar zip memiliki password dan parameter `-r` agar mampu melakukan zip pada directory.  
 
 
 
