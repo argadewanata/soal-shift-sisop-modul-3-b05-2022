@@ -229,7 +229,7 @@ for (int j = 0; j < 2; j++)
 **Penjelasan Program Fungsi Main**  
 Membuat thread untuk melakukan decode. Thread dibuat menggunakan `pthread_create` Setiap thread tersebut setelah dibuat akan digabungkan menggunakan `pthread_join`.  
 
-**Kode Program Untuk Decode**
+**Kode Program Untuk Decode Base64**
 ```
 void decodeblock(unsigned char in[], char *clrstr)
 {
@@ -315,7 +315,9 @@ void *decode_base64text(void *arg)
         }
     }
 }
-``` 
+```  
+**Penjelasan Program Untuk Decode Base64**  
+Untuk men-decode base64, kelompok kami mengambil referensi dari web ini https://fm4dd.com/programming/base64/base64_stringencode_c.shtm. Akan tetapi, untuk pembacaan setiap file-nya kami membuat fungsi sendiri, yaitu decode_base64text. Fungsi decode_base64text berguna untuk melakukan decode tiap iterasi item pada folder "quote" dan "music" dan hasilnya dimasukkan ke dalam file "music.txt" dan "quote.txt".  
 
 
 
