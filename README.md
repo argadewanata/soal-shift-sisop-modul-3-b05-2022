@@ -59,7 +59,7 @@ Download file music.zip dan quote.zip kemudian extract isinya ke dalam folder "q
     }
 
 ```  
-**Penjelasan Fungsi Main**  
+**Penjelasan Kode Program Fungsi Main**  
 Membuat thread untuk melakukan download zip, membuat directory baru, dan unzip. Thread dibuat menggunakan `pthread_create` Setiap thread tersebut setelah dibuat akan digabungkan menggunakan `pthread_join`.  
 
 **Kode Program Fungsi download_zip**  
@@ -100,7 +100,7 @@ void *download_zip(void *arg)
     }
 }
 ```
-**Penjelasan Fungsi download_zip**  
+**Penjelasan Kode Program Fungsi download_zip**  
 Sesuai dengan namanya, fungsi ini digunakan untuk mendownload zip dari internet. Agar dapat dilakukan secara bersamaan, digunakanlah thread. Untuk downloadnya sendiri, digunakan `wget` dengan parameter `-O` agar dapat disimpan dengan nama yang berbeda.  
 
 **Kode Program Fungsi makedir**  
@@ -157,7 +157,7 @@ void *makedir(void *arg)
 }
 ```  
 
-**Penjelasan Fungsi makedir**  
+**Penjelasan Kode Program Fungsi makedir**  
 Sesuai dengan namanya, fungsi ini digunakan untuk membuat directory baru, dalam hal ini directory "music","quote", dan "hasil". Agar dapat dilakukan secara bersamaan, digunakanlah thread. Untuk membuat directory, digunakan perintah `mkdir` dengan parameter `-p` agar mampu membuat sekaligus parent directorynya.  
 
 **Kode Program Fungsi unzip**    
@@ -199,7 +199,7 @@ void *unzip(void *arg)
 }
 ```  
 
-**Penjelasan Fungsi unzip**  
+**Penjelasan Kode Program Fungsi unzip**  
 Sesuai dengan namanya, fungsi ini digunakan untuk melakukan unzip pada file yang telah di-download sebelumnya. Agar dapat dilakukan secara bersamaan, digunakanlah thread. Untuk melakukan unzip, digunakan perintah `unzip` dengan menerima paramater `-o` agar mampu melakukan unzip tanpa prompt dan paramater `-d`agar mampu melakukan unzip ke directory yang berbeda.  
 
 ### 1B  
@@ -226,7 +226,7 @@ for (int j = 0; j < 2; j++)
 }
 
 ```  
-**Penjelasan Program Fungsi Main**  
+**Penjelasan Kode Program Fungsi Main**  
 Membuat thread untuk melakukan decode. Thread dibuat menggunakan `pthread_create` Setiap thread tersebut setelah dibuat akan digabungkan menggunakan `pthread_join`.  
 
 **Kode Program Untuk Decode Base64**
@@ -316,8 +316,77 @@ void *decode_base64text(void *arg)
     }
 }
 ```  
-**Penjelasan Program Untuk Decode Base64**  
+**Penjelasan Kode Program Untuk Decode Base64**  
 Untuk men-decode base64, kelompok kami mengambil referensi dari web ini https://fm4dd.com/programming/base64/base64_stringencode_c.shtm. Akan tetapi, untuk pembacaan setiap file-nya kami membuat fungsi sendiri, yaitu decode_base64text. Fungsi decode_base64text berguna untuk melakukan decode tiap iterasi item pada folder "quote" dan "music" dan hasilnya dimasukkan ke dalam file "music.txt" dan "quote.txt".  
+
+### 1C
+**Deskripsi Soal**  
+Memindahkan  file "quote.txt" dan "music.txt" ke folder "hasil"  
+
+**Kode Program Untuk Fungsi Main**  
+```
+/*
+    Soal 1C:
+    Memindahkan  file "quote.txt" dan "music.txt" ke folder "hasil"
+*/
+
+int err5;
+for (int i = 0; i < 2; i++)
+{
+    err5 = pthread_create(&(move_id[i]), NULL, &move, NULL); 
+}
+
+for (int j = 0;j < 2 ; j++)
+{
+    pthread_join(move_id[j], NULL);
+}
+
+```  
+**Penjelasan Kode Program Fungsi Main** 
+Membuat thread untuk melakukan pemindahan file. Thread dibuat menggunakan `pthread_create` Setiap thread tersebut setelah dibuat akan digabungkan menggunakan `pthread_join`.  
+
+**Kode Program Untuk Fungsi Move**  
+```
+void *move(void *arg)
+{
+    int status;    
+    pthread_t id = pthread_self();
+    if (pthread_equal(id, move_id[0]))
+    {
+        pid_t child_move_quote;
+        child_move_quote = fork();
+        if(child_move_quote < 0 )
+        {
+            exit(EXIT_FAILURE);
+        }
+        else if (child_move_quote == 0)
+        {
+            char *argv[] = {"mv",file_name_quote,folder_name_hasil,NULL};
+            execv("/bin/mv", argv);
+        }
+        while ((wait(&status)) > 0);
+    }
+    else if (pthread_equal(id, move_id[1])) 
+    {
+        pid_t child_move_music;
+        child_move_music = fork();
+        if(child_move_music < 0 )
+        {
+            exit(EXIT_FAILURE);
+        }
+        else if (child_move_music == 0)
+        {
+            char *argv[] = {"mv",file_name_music,folder_name_hasil,NULL};
+            execv("/bin/mv", argv);
+        }
+        while ((wait(&status)) > 0);
+    }
+}
+```  
+
+**Penjelasan Kode Program Fungsi Move**  
+Sesuai dengan namanya, fungsi ini digunakan untuk melakukan pemindahan file "music.txt" dan "quote.txt" ke dalam folder "hasil". Agar dapat dilakukan secara bersamaan, digunakanlah thread. Untuk melakukan pemindahan file, digunakan perintah `mv`.  
+
 
 
 
