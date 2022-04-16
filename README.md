@@ -1,7 +1,5 @@
 # Laporan Resmi Praktikum Modul 3 Kelompok B05 Sistem Operasi B Tahun 2022   
-
-Kelompok B05 Sistem Operasi B Tahun 2022  
-
+  
 Nama Lengkap | NRP
 ------------- | -------------
 Fahmi Muhazir        | 5025201043
