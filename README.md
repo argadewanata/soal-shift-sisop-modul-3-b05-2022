@@ -12,7 +12,29 @@ Rere Arga Dewanata   | 5025201078
 Novak adalah seorang mahasiswa biasa yang terlalu sering berselancar di internet. Pada suatu saat, Ia menemukan sebuah informasi bahwa ada suatu situs yang tidak memiliki pengguna. Ia mendownload berbagai informasi yang ada dari situs tersebut dan menemukan sebuah file dengan tulisan yang tidak jelas. Setelah diperhatikan lagi, kode tersebut berformat base64. Ia lalu meminta kepada anda untuk membuat program untuk memecahkan kode-kode di dalam file yang Ia simpan di drive dengan cara decoding dengan base 64. Agar lebih cepat, Ia sarankan untuk menggunakan thread.
 
 ### Kendala Soal 1  
-Masih kesulitan untuk melakukan decode base64, sehingga harus mencari referensi ke internet.
+Masih kesulitan untuk melakukan decode base64, sehingga harus mencari referensi ke internet.  
+
+### Screenshot Soal 1  
+Isi folder "quote"
+![Screenshot_2022-04-15_163732](/uploads/f7b0a69985cf5722eea40ea8b910b65b/Screenshot_2022-04-15_163732.jpeg)  
+Isi folder "music"  
+![Screenshot_2022-04-15_163757](/uploads/6d5cbcbeb53c2aa90e5d8640385cc582/Screenshot_2022-04-15_163757.jpeg)  
+Isi folder "hasil"  
+![Screenshot_2022-04-15_163809](/uploads/8d851ab99f172b6e91a7992a0b607015/Screenshot_2022-04-15_163809.jpeg)  
+Hasil decode base64 pada file "music.txt"  
+![Screenshot_2022-04-15_163819](/uploads/389bdcacaa7feb4409a8f98b0fee2187/Screenshot_2022-04-15_163819.jpeg)  
+Hasil decode base64 pada file "quote.txt"  
+![Screenshot_2022-04-15_163830](/uploads/4ab55c62eb7dccf741b2bd19da01ef5c/Screenshot_2022-04-15_163830.jpeg)  
+Tampilan keseluruhan file dan folder  
+![Screenshot_2022-04-15_163845](/uploads/d7ca19054ed6e990ef07e13cf1c0325d/Screenshot_2022-04-15_163845.jpeg)  
+Isi dari "hasil.zip"  
+![Screenshot_2022-04-15_163857](/uploads/2f718f7a8df4cc6002028928610ba4e6/Screenshot_2022-04-15_163857.jpeg)  
+Isi pada folder "hasil" di "hasil.zip"  
+![Screenshot_2022-04-15_163907](/uploads/b280153a841ae27c88606f244d362064/Screenshot_2022-04-15_163907.jpeg)  
+Isi dari "no.txt"  
+![Screenshot_2022-04-15_163920](/uploads/2d2f3cb84a2637c8804a27c3d3408cf7/Screenshot_2022-04-15_163920.jpeg)  
+Password dibutuhkan untuk unzip file "hasil.zip"  
+![Screenshot_2022-04-15_163935](/uploads/9608af078cfea3f5f4f8ccc519608709/Screenshot_2022-04-15_163935.jpeg)      
 
 ### 1A
 **Deskripsi Soal**  
