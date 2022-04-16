@@ -565,7 +565,373 @@ void *zip_hasil_again(void *arg)
 Tidak hanya mampu melakukan zip kembali, fungsi ini juga dapat menghapus file "hasil.zip" yang lama. Agar dapat dilakukan secara bersamaan, digunakanlah thread. Untuk melakukan zip, digunakan perintah `zip` dengan menerima parameter `-P` agar zip memiliki password dan parameter `-r` agar mampu melakukan zip pada directory.  Untuk melakukan penghapusan file "hasil.zip" yang lama digunakan perintah `rm`.    
 
 ## Soal 2  
-test    
+Bluemary adalah seorang Top Global 1 di salah satu platform online judge. Suatu hari Ia ingin membuat online judge nya sendiri, namun dikarenakan Ia sibuk untuk mempertahankan top global nya, maka Ia meminta kamu untuk membantunya dalam membuat online judge sederhana. Online judge sederhana akan dibuat dengan sistem client-server dengan beberapa kriteria sebagai berikut:
+
+
+### Screenshot 
+
+
+### 2A
+**Deskripsi Soal**
+Membuat register dan login pada saat client terhubung ke server, dan client akan diminta id dan password untuk dikirim ke server, dan input datanya akan disimpan ke file users.txt dengan format username:password
+dengan Username unique (tidak boleh ada user yang memiliki username yang sama), Password minimal terdiri dari 6 huruf, terdapat angka, terdapat huruf besar dan kecil
+
+```
+int validateUsername(FILE *fptr, char *username)
+{
+    char buffer[200];
+    while (fscanf(fptr, "%s", buffer) != EOF)
+    {
+        char *token = strtok(buffer, ":");
+        if (!strcmp(username, token))
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+ 
+int validatePassword(char *password)
+{
+    // check for length, number, uppercase, and lowercase character
+    int c_num = 0, c_upp = 0, c_low = 0;
+    if (strlen(password) < 6)
+        return 1;
+    for (int i = 0; password[i] != '\0'; i++)
+    {
+        c_num = c_num || isdigit(password[i]);
+        c_upp = c_upp || (isalpha(password[i]) && password[i] == toupper(password[i]));
+        c_low = c_low || (isalpha(password[i]) && password[i] == tolower(password[i]));
+    }
+    if (!(c_num && c_upp && c_low))
+        return 1;
+ 
+    return 0;
+}
+ 
+void handleRegister(int fd, char *username)
+{
+    FILE *fptr;
+    fptr = fopen("users.txt", "a+");
+    char password[100];
+    if (validateUsername(fptr, username) != 1)
+    {
+        send(fd, "Masukkan password kamu!", 100, 0);
+        read(fd, password, 1024);
+        if (validatePassword(password))
+        {
+            send(fd, "Password belum sesuai persyaratan!", 100, 0);
+        }
+        printf("uname %s\n", username);
+        printf("pass %s\n", password);
+        fprintf(fptr, "%s:%s\n", username, password);
+        fclose(fptr);
+        return;
+    }
+    else
+    {
+        send(fd, "Username sudah ada dalam database!", 100, 0);
+        close(fd);
+        exit;
+    }
+}
+ 
+void handleLogin(int fd, char *username)
+{
+    char password[100];
+    send(fd, "Masukkan password kamu!", 100, 0);
+    read(fd, password, 1024);
+    FILE *fptr = fopen("users.txt", "a+");
+    char buffer[100], comp[201];
+    snprintf(comp, 201, "%s:%s", username, password);
+    while (fscanf(fptr, "%s", buffer) != EOF)
+    {
+        if (!strcmp(comp, buffer))
+        {
+            fclose(fptr);
+            return;
+        }
+    }
+    send(fd, "Login gagal!", 100, 0);
+    fclose(fptr);
+}
+```
+
+**Penjelasan**
+Membuat register dan login, lalu membuat data input yang disimpan ke file users.txt dengan `*fptr` untuk mendeklarasi file pointer
+
+
+### 2B
+**Deskripsi Soal**
+Sistem memiliki sebuah database pada server untuk menampung problem atau soal-soal yang ada pada online judge. Database ini bernama problems.tsv yang terdiri dari judul problem dan author problem (berupa username dari author), yang dipisah dengan \t. File otomatis dibuat saat server dijalankan.
+
+```
+int validateProblem(char *title)
+{
+    FILE *tsv = fopen("problems.tsv", "r");
+    char buffer[200];
+    while (fgets(buffer, 150, tsv))
+    {
+        buffer[strcspn(buffer, "\n")] = 0;
+        char *token = strtok(buffer, "\t");
+        if (!strcmp(title, token))
+        {
+            return 1;
+        }
+    }
+    fclose(tsv);
+    return 0;
+}
+```
+
+**Penjelasan**
+Selanjutnya membuat file berextension `.tsv` saat server dijalankan untuk menampung problem dan soal-soal pada online judge
+
+### 2C
+**Deskripsi Soal**
+Membuat command `add` yang berfungsi untuk menambah problem/soal baru pada sistem Saat client menginputkan command tersebut, server akan meminta beberapa input yaitu:
+Judul problem (unique, tidak boleh ada yang sama dengan problem lain)
+Path file description.txt pada client (file ini berisi deskripsi atau penjelasan problem)
+Path file input.txt pada client (file ini berguna sebagai input testcase untuk menyelesaikan problem)
+Path file output.txt pada client (file ini berguna untuk melakukan pengecekan pada submission client terhadap problem)
+
+```
+void handleAddProblem(int fd, char *username)
+{
+    FILE *tsv = fopen("problems.tsv", "a+");
+    char judul[150], f_desc[150], f_inp[150], f_out[150], c;
+    send(fd, "Masukkan judul problem : ", 150, 0);
+    read(fd, judul, 1024);
+    if (validateProblem(judul))
+    {
+        send(fd, "re_inp", 150, 0);
+        send(fd, "Judul sudah ada, silakan masukkan ulang", 150, 0);
+        sleep(1);
+        handleAddProblem(fd, username);
+        return;
+    }
+    send(fd, "Masukkan filepath deskripsi problem : ", 150, 0);
+    read(fd, f_desc, 1024);
+    send(fd, "Masukkan filepath input problem : ", 150, 0);
+    read(fd, f_inp, 1024);
+    send(fd, "Masukkan filepath output problem : ", 150, 0);
+    read(fd, f_out, 1024);
+    fprintf(tsv, "%s\t%s\n", judul, username);
+    fclose(tsv);
+    mkdir(judul, 0777);
+    chdir(judul);
+    copyFiles(f_desc, "description.txt");
+    copyFiles(f_inp, "input.txt");
+    copyFiles(f_out, "output.txt");
+}
+```
+
+**Penjelasan**
+Membuat command add untuk menambahkan problem/soal baru pada sistem dengan 
+menggunakan `send` yang berfungsi untuk mengirim pesan hanya ketika socket terhubung 
+`read` yang berfungsi untuk membaca data yang sebelum ditulis ke file,
+`mkdir` yang berfungsi untuk membuat direktori,
+`chdir` yang berfungsi untuk mengubah direktori
+
+### 2D
+**Deskripsi Soal**
+Client yang telah login, dapat memasukkan command ‘see’ yang berguna untuk menampilkan seluruh judul problem yang ada beserta authornya(author merupakan username client yang menambahkan problem tersebut). Format yang akan ditampilkan oleh server adalah sebagai berikut:
+
+```
+void handleSeeProblem(int fd, char *username)
+{
+    char cwd[200];
+    if (getcwd(cwd, sizeof(cwd)) != NULL)
+    {
+        printf("Current working dir: %s\n", cwd);
+    }
+    FILE *tsv = fopen("problems.tsv", "a+");
+    char buffer[1000], c;
+    c = fgetc(tsv);
+    while (c != EOF)
+    {
+        if (c == '\t')
+        {
+            strcat(buffer, " by ");
+        }
+        else
+        {
+            strncat(buffer, &c, 1);
+        }
+        c = fgetc(tsv);
+    }
+    send(fd, buffer, 1000, 0);
+ 
+}
+```
+
+**Penjelasan**
+membuat command "see" untuk menampilkan semua problem/soal dengan format judul-problem by author
+
+### 2E
+**Deskripsi Soal**
+Client yang telah login, dapat memasukkan command ‘download <judul-problem>’ yang berguna untuk mendownload file description.txt dan input.txt yang berada pada folder pada server dengan nama yang sesuai dengan argumen kedua pada command yaitu <judul-problem>. Kedua file tersebut akan disimpan ke folder dengan nama <judul-problem> di client.
+
+```
+void handleDownload(int fd, char *judul)
+{
+    char buffer[90], filename1[100] = "../../Client/", filename2[100] = "../../Client/", dirname[100] = "../../Client/";
+    for (int i = 9; i < strlen(judul) + 1; i++)
+    {
+        buffer[i - 9] = judul[i];
+    }
+    chdir(buffer);
+    strcat(dirname, buffer);
+    strcat(filename1, buffer);
+    strcat(filename1, "/description.txt");
+    strcat(filename2, buffer);
+    strcat(filename2, "/input.txt");
+    mkdir(dirname, 0777);
+    copyFiles("description.txt", filename1);
+    copyFiles("input.txt", filename2);
+}
+```
+
+**Penjelasan**
+membuat command "download" yang digunakan client untuk mendownload problem dengan judul "judul-problem", server akan membuat folder pada client yang berisi descrription.txt
+dan input.txt dari problem yang telah di download client
+
+### 2F
+**Deskripsi Soal**
+Client yang telat login, dapat memasukan command ‘submit <judul-problem> <path-file-output.txt>’.  
+Command ini berguna untuk melakukan submit jawaban dari client terhadap problem tertentu. 
+Algoritma yang dijalankan adalah client akan mengirimkan file output.txt nya melalui argumen ke 3 pada command, 
+lalu server akan menerima dan membandingkan isi file output.txt yang telah dikirimkan oleh client dan output.txt yang ada pada 
+dengan nama yang sesuai dengan argumen ke 2 pada command. Jika file yang dibandingkan sama, maka server akan mengirimkan pesan “AC” dan jika 
+tidak maka server akan mengeluarkan pesan “WA”.
+
+```
+void handleSubmit(int fd, char *judul)
+{
+    char cwd[200];
+    if (getcwd(cwd, sizeof(cwd)) != NULL)
+    {
+        printf("Current working dir: %s\n", cwd);
+    }
+    printf("%s\n", judul);
+    int p_f = 0, ln = 0;
+    char buffer[100], filename1[100], filename2[100], c, c_sub;
+    for (int i = 7; i < strlen(judul); i++)
+    {
+        buffer[i - 7] = judul[i];
+    }
+    for (int i = 0; i < strlen(buffer) - 2; i++)
+    {
+        if (buffer[i] == ' ')
+        {
+            filename1[i] = '\0';
+            p_f = 1;
+        }
+        else if (!p_f)
+        {
+            filename1[i] = buffer[i];
+        }
+        else
+        {
+            filename2[ln] = buffer[i];
+            ln++;
+        }
+    }
+    printf("%s\n", filename1);
+    chdir(filename1);
+    FILE *f_inp = fopen("output.txt", "a+"), *f_sub = fopen(filename2, "a+");
+    c = fgetc(f_inp);
+    c_sub = fgetc(f_sub);
+    while (c != EOF)
+    {
+        printf("%s\n", filename1);
+        if (c != c_sub)
+        {
+            send(fd, "WA", 5, 0);
+            return;
+        }
+        c_sub = fgetc(f_sub);
+        c = fgetc(f_inp);
+    }
+    fclose(f_inp);
+    fclose(f_sub);
+    send(fd, "AC", 5, 0);
+}
+```
+
+**Penjelasan**
+Membuat command "Submit" agar client dapat memberikan output/jawaban dari problem dengan judul-problem 
+yang ingin di solve oleh client saat meng-submit.
+
+### 2G
+**Deskripsi Soal**
+Server dapat menangani multiple-connection. Dimana jika terdapat 2 atau lebih client yang terhubung ke server, maka harus menunggu 
+sampai client pertama keluar untuk bisa melakukan login dan mengakses aplikasinya.
+
+```
+void *handleConnection(void *argv)
+{
+    int new_socket = *((int *)argv), auth = 0;
+    free(argv);
+    char response_buffer[1024], cmd_buffer[1024], username[100];
+    if (!auth)
+    {
+        send(new_socket, "Please enter an option : [register/login]", 100, 0);
+        read(new_socket, response_buffer, 1024);
+        send(new_socket, "Masukkan username kamu!", 100, 0);
+        read(new_socket, username, 1024);
+        if (!strcmp(response_buffer, "register"))
+        {
+            handleRegister(new_socket, username);
+        }
+        else
+        {
+            handleLogin(new_socket, username);
+        }
+        auth = 1;
+    }
+    while (auth)
+    {
+        char cwd[200];
+        if (getcwd(cwd, sizeof(cwd)) != NULL)
+        {
+            printf("Current working dir: %s\n", cwd);
+        }
+        chdir("home/alex/soal-shift-sisop-modul-3-E04-2022/soal2/Server");
+        send(new_socket, "\nBerhasil masuk. Masukkan perintah [add/see/download <judul-problem>/submit <judul-problem> <path-file-output.txt>]\n", 150, 0);
+        read(new_socket, cmd_buffer, 1024);
+        if (!strcmp(cmd_buffer, "add"))
+        {
+            handleAddProblem(new_socket, username);
+        }
+        else if (!strcmp(cmd_buffer, "see"))
+        {
+            handleSeeProblem(new_socket, username);
+        }
+        else if (cmd_buffer[0] == 'd')
+        {
+            handleDownload(new_socket, cmd_buffer);
+        }
+        else if (cmd_buffer[0] == 's')
+        {
+            handleSubmit(new_socket, cmd_buffer);
+        }
+        else
+        {
+            close(new_socket);
+        }
+    }
+ 
+    return NULL;
+}
+```
+
+**Penjelasan**
+Membuat server yang dapat menangani multiple-connection.
+
+### Kendala Soal 2
+Masih kesulitan untuk menyelesaikan 2d,e,f
+
 
 ## Soal 3  
 test  
