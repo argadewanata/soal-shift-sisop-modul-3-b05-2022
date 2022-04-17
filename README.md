@@ -1192,5 +1192,10 @@ int main() {
 Kendalanya adalah mencari alternatif untuk command `execv` , `fork`, dan `system`. terjadi error saat menginputkan `send hartakarun.zip`. Beberapa folder memiliki isi tidak sesuai. Tidak sempat membuat fungsi untuk mengekstract zip. Dan koneksi ke server nya sering kali gagal
 ## Screenshot hasil soal 3
 
+![Soal 3-1.png](./Soal 3-1.png)
+
+![Soal 3-2.png](./Soal 3-2.png)
+
+![Soal 3-3.png](./Soal 3-3.png)
 
 
