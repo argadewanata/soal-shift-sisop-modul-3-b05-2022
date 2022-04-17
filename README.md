@@ -950,7 +950,7 @@ Pada soal ini kita akan diminta untuk mengunzip suatu file kemudian memisahkan i
 
 ## A
 
-Pada soal A ini kami diminta untuk mengunzip file `hartakarun.zip` ke folder /home/[user]/shift3/. Kemudian working directory berada pada home/rachmita/shift3/hartakarun/ dan file dikategorikan secara rekursif/
+Pada soal A ini kami diminta untuk mengunzip file `hartakarun.zip` ke folder /home/[user]/shift3/. Kemudian working directory berada pada /home/[user]/shift3/hartakarun/ dan file dikategorikan secara rekursif
 
  Pada soal ini kami melakukan unzip secara manual kemudian mengkategorikan file dengan fungsi `lof` atau list of file
 
