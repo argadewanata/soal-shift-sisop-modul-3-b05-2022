@@ -7,74 +7,80 @@
 #include <ctype.h>
 #include <unistd.h>
 
-int checkFile(const char *fname) {
+
+// Checking The File
+int cFile(const char *fName){
     struct stat buffer;
-    int ext = stat(fname, &buffer);
-    if (ext == 0)
+    int exist = stat(fName, &buffer);
+    if (exist == 0) {
         return 1;
-    else 
+    }
+    else {
         return 0;
+    }
 }
 
-void *mv(void *fname) {
-    char curdir[PATH_MAX];
-    char dirname[200];
-    char hidd[100];
-    char hiddname[100];
+//Move content
+void *mv(void *fName){
+    char curDir[PATH_MAX];
+    char dirName[200];
+    char hdd[100];
+    char hddName[100];
     char file[100];
-    char extfile[100];
-    char *nama_ = strrchr(hiddname, '/');
+    char extFile[100];
     int i;
-    
-    strcpy(extfile, fname);
-    strcpy(hiddname, fname);
-    strcpy(hidd, nama_);
+    strcpy(extFile, fName);
+    strcpy(hddName, fName);
+    char *namaa = strrchr(hddName, '/');
+    strcpy(hdd, namaa);
 
-    if (hidd[1] == '.') {
-        strcpy(dirname, "Hidden");
+    if (hdd[1] == '.') {
+        strcpy(dirName, "Hidden");
     }
-    else if (strstr(fname, ".") != NULL) {
-        strcpy(file, fname);
+    else if (strstr(fName, ".") != NULL) {
+        strcpy(file, fName);
         strtok(file, ".");
         char *token = strtok(NULL, "");
         for (i = 0; token[i]; i++) {
             token[i] = tolower(token[i]);
         }
-        strcpy(dirname, token);
+        strcpy(dirName, token);
     }
     else {
-        strcpy(dirname, "Unknown");
+        strcpy(dirName, "Unknown");
     }
-    int ext = checkFile(extfile);
-    if (ext)
-        mkdir(dirname, 0777);
+    int exist = cFile(extFile);
+    if (exist)
+        mkdir(dirName, 0777);
 
-    if (getcurdir(curdir, sizeof(curdir)) != NULL) {
-        char *nama = strrchr(fname, '/');
-        char nmfile[200];
-        strcpy(nmfile, curdir);
-        strcat(nmfile, "/");
-        strcat(nmfile, nama);
-        strcat(nmfile, dirname);
-        rename(fname, nmfile);
+    if (getcwd(curDir, sizeof(curDir)) != NULL) {
+        char *nama = strrchr(fName, '/');
+        char namafile[200];
+        strcpy(namafile, curDir);
+        strcat(namafile, "/");
+        strcat(namafile, dirName);
+        strcat(namafile, nama);
+
+        rename(fName, namafile);
     }
 }
 
-void lof(char *mainPath) {
-    char path[1000];
-    struct dirent *dirP;
+// List of File
+void lof(char *bsPath) {
+    char path[1000]; 
+    struct dirent *dp;
     struct stat buffer;
-    DIR *dir = opendir(mainPath);
+    DIR *dir = opendir(bsPath);
     int n = 0;
 
     if (!dir)
         return;
 
-    while ((dirP = readdir(dir)) != NULL) {
-        if (strcmp(dirP->dname, ".") != 0 && strcmp(dirP->dname, "..") != 0) {
-            strcpy(path, mainPath);
+    while ((dp = readdir(dir)) != NULL) {
+        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0) {
+            strcpy(path, bsPath);
             strcat(path, "/");
-            strcat(path, dirP->dname);
+            strcat(path, dp->d_name);
 
             if (stat(path, &buffer) == 0 && S_ISREG(buffer.st_mode)) {
                 pthread_t thread;
@@ -88,10 +94,11 @@ void lof(char *mainPath) {
     closedir(dir);
 }
 
+//Main Program
 int main(int argc, char *argv[]) {
-    char curdir[PATH_MAX];
+    char curDir[PATH_MAX];
 
-    if (getcurdir(curdir, sizeof(curdir)) != NULL) {
-        lof(curdir);
+    if (getcwd(curDir, sizeof(curDir)) != NULL)     {
+        lof(curDir);
     }
 }
