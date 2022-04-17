@@ -933,5 +933,254 @@ Membuat server yang dapat menangani multiple-connection.
 Masih kesulitan untuk menyelesaikan 2d,e,f
 
 
-## Soal 3  
-test  
+# Soal 3
+
+## Penjelasan Code Soal 3
+Pada soal ini kita akan diminta untuk mengunzip suatu file kemudian memisahkan isi zip tersebut berdasarkan dari ekstensinya. Setelah itu seluruh file dizip kembali dan dikirimkan menggunakan socket client server.
+
+## A
+
+Pada soal A ini kami diminta untuk mengunzip file `hartakarun.zip` ke folder /home/[user]/shift3/. Kemudian working directory berada pada home/rachmita/shift3/hartakarun/ dan file dikategorikan secara rekursif/
+
+ Pada soal ini kami melakukan unzip secara manual kemudian mengkategorikan file dengan fungsi `lof` atau list of file
+
+## B
+
+Pada soal B, akan dibuat dua directory bary yaitu "Unknown" dan "Hidden". Pada folder unknown berfungsi untuk menamoung file yang tidak memiliki ekstensi. Sedangkan untuk folder hidden akan berisi file hidden.
+```c
+void *mv(void *fName){
+    char curDir[PATH_MAX];
+    char dirName[200];
+    char hdd[100];
+    char hddName[100];
+    char file[100];
+    char extFile[100];
+    int i;
+    strcpy(extFile, fName);
+    strcpy(hddName, fName);
+    char *namaa = strrchr(hddName, '/');
+    strcpy(hdd, namaa);
+
+    if (hdd[1] == '.') {
+        strcpy(dirName, "Hidden");
+    }
+    else if (strstr(fName, ".") != NULL) {
+        strcpy(file, fName);
+        strtok(file, ".");
+        char *token = strtok(NULL, "");
+        for (i = 0; token[i]; i++) {
+            token[i] = tolower(token[i]);
+        }
+        strcpy(dirName, token);
+    }
+    else {
+        strcpy(dirName, "Unknown");
+    }
+    int exist = cFile(extFile);
+    if (exist)
+        mkdir(dirName, 0777);
+
+    if (getcwd(curDir, sizeof(curDir)) != NULL) {
+        char *nama = strrchr(fName, '/');
+        char namafile[200];
+        strcpy(namafile, curDir);
+        strcat(namafile, "/");
+        strcat(namafile, dirName);
+        strcat(namafile, nama);
+
+        rename(fName, namafile);
+    }
+}
+```
+dibuat fungsi `mv` untuk memindahkan setiap file ke tiap tiap folder sesuai ekstensi, dengan aturan tidak sesnsitive case sehingga menggunakan tolower untuk membuat huruf kalpital menjadi kecil. Kemudian hidden jika diawali '.' dan unknown untuk yang tidak memiliki ekstensi dengan pemisahnya strtok(.). Kemudian akan dipindahkan ke nama directorinya yang sesuai.
+
+## C
+
+Selanjutnya karena pada soal A juga terdapat perintah melist file secara rekursif pada fungsi ini dibuat fungsi `lof`
+```c
+void lof(char *bsPath) {
+    char path[1000]; 
+    struct dirent *dp;
+    struct stat buffer;
+    DIR *dir = opendir(bsPath);
+    int n = 0;
+
+    if (!dir)
+        return;
+
+    while ((dp = readdir(dir)) != NULL) {
+        if (strcmp(dp->d_name, ".") != 0 && strcmp(dp->d_name, "..") != 0) {
+            strcpy(path, bsPath);
+            strcat(path, "/");
+            strcat(path, dp->d_name);
+
+            if (stat(path, &buffer) == 0 && S_ISREG(buffer.st_mode)) {
+                pthread_t thread;
+                int err = pthread_create(&thread, NULL, mv, (void *)path);
+                pthread_join(thread, NULL);
+            }
+
+            lof(path);
+        }
+    }
+    closedir(dir);
+}
+```
+Akan dilist, dibuat juga thread dan fungsi *mv tadi sebagai argument dan setelah dibuat thread dilanjutkan menggunakan pthread_join
+
+## D
+
+Pada soal ini pertama kita harus melakukan zip dari folder hartakarun yang sudah dikategorikan berdasarkan ekstensinya pada program client. Berikut adalah program  `client.c`
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <arpa/inet.h>
+#define SIZE 1024
+
+void sFile(FILE *fp, int socketFd) {
+    int n;
+    char data[SIZE] = {0};
+
+    while (fgets(data, SIZE, fp) != NULL) {
+        if (send(socketFd, data, sizeof(data), 0) == -1) {
+            perror("~Error in sending file.");
+            exit(1);
+        }
+        bzero(data, SIZE);
+    }
+}
+
+int main() {
+    char *ip = "127.0.0.1";
+    int port = 8080;
+    int e;
+
+    int socketFd;
+    struct sockaddr_in serverAdd;
+    FILE *fp;
+    char *fName = "hartakarun.zip";
+
+    socketFd = socket(AF_INET, SOCK_STREAM, 0);
+    if (socketFd < 0) {
+        perror("~Error in socket");
+        exit(1);
+    }
+    printf("~Server socket created successfully.\n");
+
+    serverAdd.sin_port = port;
+    serverAdd.sin_addr.s_addr = inet_addr(ip);
+    serverAdd.sin_family = AF_INET;
+
+
+    e = connect(socketFd, (struct sockaddr *)&serverAdd, sizeof(serverAdd));
+    if (e == -1) {
+        perror("~Error in socket");
+        exit(1);
+    }
+    printf("~Connected to Server.\n");
+
+    char comm[100];
+    scanf("%s", comm);
+    if (strcmp(comm, "send hartakarun.zip") == 0) {
+        // scanf("%s", fName);
+
+        fp = fopen(fName, "r");
+        if (fp == NULL) {
+            perror("~Error in reading file.");
+            exit(1);
+        }
+
+        sFile(fp, socketFd);
+        printf("~File data sent successfully.\n");
+
+        printf("~Closing the connection.\n");
+        close(socketFd);
+    }
+    return 0;
+}
+```
+
+## E
+
+Soal E ini ketika client mengirimkan command `send hartakarun.zip` maka pada server akan mendapatkan hartakarun.zip yang sama. Berikut adalah program dari `server.c`
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <arpa/inet.h>
+#define SIZE 1024
+
+void write_file(int socketFd) { 
+    int n;
+    FILE *fp;
+    char *fName = "hartakarun.zip";
+    char buffer[SIZE];
+
+    fp = fopen(fName, "w");
+    while (1) {
+        n = recv(socketFd, buffer, SIZE, 0);
+        if (n <= 0) {
+            break;
+            return;
+        }
+        fprintf(fp, "%s", buffer);
+        bzero(buffer, SIZE);
+    }
+    return;
+}
+
+int main() {
+    char *ip = "127.0.0.1";
+    int port = 8080;
+    int e;
+
+    int socketFd, new_sock;
+    struct sockaddr_in serverAdd, new_addr;
+    socklen_t addr_size;
+    char buffer[SIZE];
+
+    socketFd = socket(AF_INET, SOCK_STREAM, 0);
+    if (socketFd < 0) {
+        perror("~Error in socket");
+        exit(1);
+    }
+    printf("~Server socket created successfully.\n");
+
+    serverAdd.sin_family = AF_INET;
+    serverAdd.sin_port = port;
+    serverAdd.sin_addr.s_addr = inet_addr(ip);
+
+    e = bind(socketFd, (struct sockaddr *)&serverAdd, sizeof(serverAdd));
+    if (e < 0) {
+        perror("~Error in bind");
+        exit(1);
+    }
+    printf("~Binding successfull.\n");
+
+    if (listen(socketFd, 10) == 0) {
+        printf("~Listening....\n");
+    }
+    else{
+        perror("~Error in listening");
+        exit(1);
+    }
+
+    addr_size = sizeof(new_addr);
+    new_sock = accept(socketFd, (struct sockaddr *)&new_addr, &addr_size);
+    write_file(new_sock);
+    printf("~Data written in the file successfully.\n");
+
+    return 0;
+}
+
+
+```
+
+## Kendala yang dihadapi
+Kendalanya adalah mencari alternatif untuk command `execv` , `fork`, dan `system`. terjadi error saat menginputkan `send hartakarun.zip`. Beberapa folder memiliki isi tidak sesuai. Tidak sempat membuat fungsi untuk mengekstract zip. Dan koneksi ke server nya sering kali gagal
+## Screenshot hasil soal 3
+
+
+
