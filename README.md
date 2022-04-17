@@ -1193,12 +1193,12 @@ Kendalanya adalah mencari alternatif untuk command `execv` , `fork`, dan `system
 ## Screenshot hasil soal 3
 
 Setelah program `soal3.c` dijalankan 
-![Soal 3-1.png](AssetSoal 3-1.png)
+![Soal 3-1.png](Asset/Soal 3-1.png)
 
 Isi folder `Uknown`
 ![Soal 3-2.png](Asset/Soal 3-2.png)
 
 Isi folder `Hidden`
-![Soal 3-3.png](AssetSoal 3-3.png)
+![Soal 3-3.png](Asset/Soal 3-3.png)
 
 
