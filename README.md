@@ -568,7 +568,17 @@ Tidak hanya mampu melakukan zip kembali, fungsi ini juga dapat menghapus file "h
 Bluemary adalah seorang Top Global 1 di salah satu platform online judge. Suatu hari Ia ingin membuat online judge nya sendiri, namun dikarenakan Ia sibuk untuk mempertahankan top global nya, maka Ia meminta kamu untuk membantunya dalam membuat online judge sederhana. Online judge sederhana akan dibuat dengan sistem client-server dengan beberapa kriteria sebagai berikut:
 
 
-### Screenshot 
+### Screenshot  
+![Screenshot_2022-04-15_163819](/uploads/7c39c151f9cc528139ce1a85b097b694/Screenshot_2022-04-15_163819.jpeg)  
+![Screenshot_2022-04-16_092812](/uploads/285aa351abc7ff88981bfc80650db66c/Screenshot_2022-04-16_092812.jpeg)  
+![Screenshot_2022-04-16_092822](/uploads/d58d88d524b9ecfedf8a99f53bf56ca2/Screenshot_2022-04-16_092822.jpeg)  
+![Screenshot_2022-04-16_092858](/uploads/74d906f0e33b333bdc06171e407aa5af/Screenshot_2022-04-16_092858.jpeg)  
+![Screenshot_2022-04-16_092917](/uploads/2d73f3726cb14fc3aae998c1dacb2273/Screenshot_2022-04-16_092917.jpeg)  
+![Screenshot_2022-04-16_092952](/uploads/a918620df314991fe3226e2cabd3a036/Screenshot_2022-04-16_092952.jpeg)  
+![Screenshot_2022-04-16_093002](/uploads/438b00f92774af2c41b46449fe7eafc4/Screenshot_2022-04-16_093002.jpeg)  
+![Screenshot_2022-04-16_093137](/uploads/e3e2a332b21e8730fca5a0961f8a3729/Screenshot_2022-04-16_093137.jpeg)
+![Screenshot_2022-04-16_093152](/uploads/0467c8134df23858bc13f8e5b35637c4/Screenshot_2022-04-16_093152.jpeg)    
+
 
 
 ### 2A
